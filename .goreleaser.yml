@@ -9,6 +9,9 @@ builds:
   - darwin
   goarch:
   - amd64
+archive:
+  files:
+  - config.yml
 dockers:
 - image: caninjas/hystrix_exporter
   latest: true
