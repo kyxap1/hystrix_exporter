@@ -30,6 +30,7 @@ var (
 	app        = kingpin.New("hystrix-exporter", "exports hystrix metrics in the prometheus format")
 	configFile = app.Flag("config", "config file").Short('c').Default("config.yml").ExistingFile()
 	listenAddr = app.Flag("listen-addr", "address to listen to").Default(":9444").String()
+	debug      = app.Flag("debug", "show debug logs").Default("false").Bool()
 )
 
 var indexTmpl = `
@@ -53,6 +54,10 @@ func main() {
 	app.VersionFlag.Short('v')
 	app.HelpFlag.Short('h')
 	kingpin.MustParse(app.Parse(os.Args[1:]))
+
+	if *debug {
+		log.SetLevel(log.DebugLevel)
+	}
 
 	conf, err := config.Parse(*configFile)
 	if err != nil {
@@ -90,6 +95,7 @@ func read(url, cluster string) {
 	}
 	scanner := bufio.NewScanner(resp.Body)
 	for scanner.Scan() {
+		log.Debug("new line")
 		line := scanner.Text()
 		if !strings.HasPrefix(line, "data:") {
 			continue

@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"github.com/ContaAzul/hystrix-exporter/hystrix"
+	"github.com/apex/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -185,6 +186,8 @@ func MustRegister(registerer prometheus.Registerer) {
 
 // ReportCommand reports metrics of a command
 func ReportCommand(cluster string, data hystrix.Data) {
+	log.WithField("cluster", cluster).WithField("data", data).Debug("reporting")
+
 	latencyTotal.WithLabelValues(cluster, data.Name, "0").Set(data.LatencyTotal.L0)
 	latencyTotal.WithLabelValues(cluster, data.Name, "25").Set(data.LatencyTotal.L25)
 	latencyTotal.WithLabelValues(cluster, data.Name, "50").Set(data.LatencyTotal.L50)
@@ -220,6 +223,8 @@ func ReportCommand(cluster string, data hystrix.Data) {
 
 // ReportThreadPool reports metrics of a thread pool
 func ReportThreadPool(cluster string, data hystrix.Data) {
+	log.WithField("cluster", cluster).WithField("data", data).Debug("reporting")
+
 	threadPoolCurrentCorePoolSize.WithLabelValues(cluster, data.Name).Set(data.CurrentCorePoolSize)
 	threadPoolCurrentLargestPoolSize.WithLabelValues(cluster, data.Name).Set(data.CurrentLargestPoolSize)
 	threadPoolCurrentActiveCount.WithLabelValues(cluster, data.Name).Set(data.CurrentActiveCount)
