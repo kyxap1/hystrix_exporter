@@ -124,7 +124,3 @@ func report(cluster, line string) {
 		log.Warnf("don't know what to do with type '%s'", data.Type)
 	}
 }
-
-func isData(line string) bool {
-	return strings.HasPrefix(line, "data:")
-}
