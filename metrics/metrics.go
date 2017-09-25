@@ -1,7 +1,7 @@
 package metrics
 
 import (
-	"github.com/ContaAzul/hystrix-exporter/hystrix"
+	"github.com/ContaAzul/hystrix_exporter/hystrix"
 	"github.com/apex/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
