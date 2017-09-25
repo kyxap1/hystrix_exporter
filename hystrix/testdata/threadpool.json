@@ -1,0 +1,18 @@
+{
+  "currentCorePoolSize": 40,
+  "currentLargestPoolSize": 40,
+  "propertyValue_metricsRollingStatisticalWindowInMilliseconds": 40000,
+  "currentActiveCount": 0,
+  "currentMaximumPoolSize": 40,
+  "currentQueueSize": 0,
+  "type": "HystrixThreadPool",
+  "currentTaskCount": 14720,
+  "currentCompletedTaskCount": 14720,
+  "rollingMaxActiveThreads": 7,
+  "rollingCountCommandRejections": 0,
+  "name": "taxsuggestion",
+  "reportingHosts": 4,
+  "currentPoolSize": 40,
+  "propertyValue_queueSizeRejectionThreshold": 20,
+  "rollingCountThreadsExecuted": 21
+}
