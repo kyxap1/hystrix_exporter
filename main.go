@@ -16,9 +16,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/ContaAzul/hystrix-exporter/config"
-	"github.com/ContaAzul/hystrix-exporter/hystrix"
-	"github.com/ContaAzul/hystrix-exporter/metrics"
+	"github.com/ContaAzul/hystrix_exporter/config"
+	"github.com/ContaAzul/hystrix_exporter/hystrix"
+	"github.com/ContaAzul/hystrix_exporter/metrics"
 )
 
 func init() {
