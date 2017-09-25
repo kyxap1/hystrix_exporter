@@ -96,8 +96,8 @@ func read(url, cluster string) {
 		}
 		report(cluster, line)
 	}
-	// stream stop reporting
-	time.Sleep(time.Second * 1)
+	log.Warn("stream stop reporting")
+	time.Sleep(time.Second * 5)
 	read(url, cluster)
 }
 

@@ -183,6 +183,7 @@ func MustRegister(registerer prometheus.Registerer) {
 	)
 }
 
+// ReportCommand reports metrics of a command
 func ReportCommand(cluster string, data hystrix.Data) {
 	latencyTotal.WithLabelValues(cluster, data.Name, "0").Set(data.LatencyTotal.L0)
 	latencyTotal.WithLabelValues(cluster, data.Name, "25").Set(data.LatencyTotal.L25)
@@ -217,6 +218,7 @@ func ReportCommand(cluster string, data hystrix.Data) {
 	circuitOpen.WithLabelValues(cluster, data.Name).Set(boolToFloat64(data.Open))
 }
 
+// ReportThreadPool reports metrics of a thread pool
 func ReportThreadPool(cluster string, data hystrix.Data) {
 	threadPoolCurrentCorePoolSize.WithLabelValues(cluster, data.Name).Set(data.CurrentCorePoolSize)
 	threadPoolCurrentLargestPoolSize.WithLabelValues(cluster, data.Name).Set(data.CurrentLargestPoolSize)
