@@ -9,6 +9,8 @@ builds:
   - darwin
   goarch:
   - amd64
+  env:
+  - CGO_ENABLED=0
 archive:
   files:
   - config.yml
