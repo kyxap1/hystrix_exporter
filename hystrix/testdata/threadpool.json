@@ -1,4 +1,4 @@
-{
+data: {
   "currentCorePoolSize": 40,
   "currentLargestPoolSize": 40,
   "propertyValue_metricsRollingStatisticalWindowInMilliseconds": 40000,

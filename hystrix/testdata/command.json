@@ -1,4 +1,4 @@
-{
+data: {
   "rollingCountFallbackSuccess": 0,
   "rollingCountFallbackFailure": 0,
   "propertyValue_circuitBreakerRequestVolumeThreshold": 20,
