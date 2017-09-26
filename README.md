@@ -17,4 +17,4 @@ And run it with `./hystrix_exporter -c config.yml`.
 It will expose the metrics as `:9444/metrics`, which you can scrap
 with Prometheus.
 
-Check the [Releases](/releases) page for docker images and binaries.
+Check the [Releases](https://github.com/ContaAzul/hystrix_exporter/releases) page for docker images and binaries.
