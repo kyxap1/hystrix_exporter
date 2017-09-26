@@ -6,7 +6,6 @@ You can create a YAML file like this:
 
 ```yaml
 clusters:
-clusters:
 - name: example
   url: http://example/hystrix.stream
 - name: another
