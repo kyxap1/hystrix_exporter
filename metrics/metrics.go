@@ -1,6 +1,8 @@
 package metrics
 
 import (
+	"strings"
+
 	"github.com/ContaAzul/hystrix_exporter/hystrix"
 	"github.com/apex/log"
 	"github.com/prometheus/client_golang/prometheus"
@@ -15,67 +17,67 @@ var (
 	latencyTotal = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "hystrix_latency_total",
 		Help: "latencies total",
-	}, []string{"cluster", "name", "statistic"})
+	}, []string{"cluster", "name", "group", "statistic"})
 
 	// LatencyExecute prometheus gauge
 	latencyExecute = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "hystrix_latency_Execute",
 		Help: "latencies execute",
-	}, []string{"cluster", "name", "statistic"})
+	}, []string{"cluster", "name", "group", "statistic"})
 
 	// RollingCountCollapsedRequests prometheus gauge
 	rollingCountCollapsedRequests = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "hystrix_command_rollingCountCollapsedRequests",
 		Help: "rollingCountCollapsedRequests",
-	}, []string{"cluster", "name"})
+	}, []string{"cluster", "name", "group"})
 
 	// RollingCountShortCircuited prometheus gauge
 	rollingCountShortCircuited = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "hystrix_command_rollingCountShortCircuited",
 		Help: "rollingCountShortCircuited",
-	}, []string{"cluster", "name"})
+	}, []string{"cluster", "name", "group"})
 
 	// RollingCountThreadPoolRejected prometheus gauge
 	rollingCountThreadPoolRejected = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "hystrix_command_rollingCountThreadPoolRejected",
 		Help: "rollingCountThreadPoolRejected",
-	}, []string{"cluster", "name"})
+	}, []string{"cluster", "name", "group"})
 
 	// RollingCountFallbackEmit prometheus gauge
 	rollingCountFallbackEmit = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "hystrix_command_rollingCountFallbackEmit",
 		Help: "rollingCountFallbackEmit",
-	}, []string{"cluster", "name"})
+	}, []string{"cluster", "name", "group"})
 
 	// RollingCountSuccess prometheus gauge
 	rollingCountSuccess = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "hystrix_command_rollingCountSuccess",
 		Help: "rollingCountSuccess",
-	}, []string{"cluster", "name"})
+	}, []string{"cluster", "name", "group"})
 
 	// RollingCountTimeout prometheus gauge
 	rollingCountTimeout = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "hystrix_command_rollingCountTimeout",
 		Help: "rollingCountTimeout",
-	}, []string{"cluster", "name"})
+	}, []string{"cluster", "name", "group"})
 
 	// RollingCountFailure prometheus gauge
 	rollingCountFailure = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "hystrix_command_rollingCountFailure",
 		Help: "rollingCountFailure",
-	}, []string{"cluster", "name"})
+	}, []string{"cluster", "name", "group"})
 
 	// RollingCountExceptionsThrown prometheus gauge
 	rollingCountExceptionsThrown = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "hystrix_command_rollingCountExceptionsThrown",
 		Help: "rollingCountExceptionsThrown",
-	}, []string{"cluster", "name"})
+	}, []string{"cluster", "name", "group"})
 
 	// CircuitOpen prometheus gauge
 	circuitOpen = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "hystrix_command_circuit_open",
 		Help: "circuit open, 1 means true",
-	}, []string{"cluster", "name"})
+	}, []string{"cluster", "name", "group"})
 
 	//
 	// thread pool gauges:
@@ -188,55 +190,60 @@ func MustRegister(registerer prometheus.Registerer) {
 func ReportCommand(cluster string, data hystrix.Data) {
 	log.WithField("cluster", cluster).WithField("data", data).Debug("reporting")
 
-	latencyTotal.WithLabelValues(cluster, data.Name, "0").Set(data.LatencyTotal.L0)
-	latencyTotal.WithLabelValues(cluster, data.Name, "25").Set(data.LatencyTotal.L25)
-	latencyTotal.WithLabelValues(cluster, data.Name, "50").Set(data.LatencyTotal.L50)
-	latencyTotal.WithLabelValues(cluster, data.Name, "75").Set(data.LatencyTotal.L75)
-	latencyTotal.WithLabelValues(cluster, data.Name, "90").Set(data.LatencyTotal.L90)
-	latencyTotal.WithLabelValues(cluster, data.Name, "95").Set(data.LatencyTotal.L95)
-	latencyTotal.WithLabelValues(cluster, data.Name, "99").Set(data.LatencyTotal.L99)
-	latencyTotal.WithLabelValues(cluster, data.Name, "99.5").Set(data.LatencyTotal.L995)
-	latencyTotal.WithLabelValues(cluster, data.Name, "100").Set(data.LatencyTotal.L100)
-	latencyTotal.WithLabelValues(cluster, data.Name, "mean").Set(data.LatencyTotalMean)
-	latencyExecute.WithLabelValues(cluster, data.Name, "0").Set(data.LatencyExecute.L0)
-	latencyExecute.WithLabelValues(cluster, data.Name, "25").Set(data.LatencyExecute.L25)
-	latencyExecute.WithLabelValues(cluster, data.Name, "50").Set(data.LatencyExecute.L50)
-	latencyExecute.WithLabelValues(cluster, data.Name, "75").Set(data.LatencyExecute.L75)
-	latencyExecute.WithLabelValues(cluster, data.Name, "90").Set(data.LatencyExecute.L90)
-	latencyExecute.WithLabelValues(cluster, data.Name, "95").Set(data.LatencyExecute.L95)
-	latencyExecute.WithLabelValues(cluster, data.Name, "99").Set(data.LatencyExecute.L99)
-	latencyExecute.WithLabelValues(cluster, data.Name, "99.5").Set(data.LatencyExecute.L995)
-	latencyExecute.WithLabelValues(cluster, data.Name, "100").Set(data.LatencyExecute.L100)
-	latencyExecute.WithLabelValues(cluster, data.Name, "mean").Set(data.LatencyExecuteMean)
+	var name = strings.ToLower(data.Name)
+	var group = strings.ToLower(data.Group)
 
-	rollingCountCollapsedRequests.WithLabelValues(cluster, data.Name).Set(data.RollingCountCollapsedRequests)
-	rollingCountShortCircuited.WithLabelValues(cluster, data.Name).Set(data.RollingCountShortCircuited)
-	rollingCountThreadPoolRejected.WithLabelValues(cluster, data.Name).Set(data.RollingCountThreadPoolRejected)
-	rollingCountFallbackEmit.WithLabelValues(cluster, data.Name).Set(data.RollingCountFallbackEmit)
-	rollingCountSuccess.WithLabelValues(cluster, data.Name).Set(data.RollingCountSuccess)
-	rollingCountTimeout.WithLabelValues(cluster, data.Name).Set(data.RollingCountTimeout)
-	rollingCountFailure.WithLabelValues(cluster, data.Name).Set(data.RollingCountFailure)
-	rollingCountExceptionsThrown.WithLabelValues(cluster, data.Name).Set(data.RollingCountExceptionsThrown)
+	latencyTotal.WithLabelValues(cluster, name, group, "0").Set(data.LatencyTotal.L0)
+	latencyTotal.WithLabelValues(cluster, name, group, "25").Set(data.LatencyTotal.L25)
+	latencyTotal.WithLabelValues(cluster, name, group, "50").Set(data.LatencyTotal.L50)
+	latencyTotal.WithLabelValues(cluster, name, group, "75").Set(data.LatencyTotal.L75)
+	latencyTotal.WithLabelValues(cluster, name, group, "90").Set(data.LatencyTotal.L90)
+	latencyTotal.WithLabelValues(cluster, name, group, "95").Set(data.LatencyTotal.L95)
+	latencyTotal.WithLabelValues(cluster, name, group, "99").Set(data.LatencyTotal.L99)
+	latencyTotal.WithLabelValues(cluster, name, group, "99.5").Set(data.LatencyTotal.L995)
+	latencyTotal.WithLabelValues(cluster, name, group, "100").Set(data.LatencyTotal.L100)
+	latencyTotal.WithLabelValues(cluster, name, group, "mean").Set(data.LatencyTotalMean)
+	latencyExecute.WithLabelValues(cluster, name, group, "0").Set(data.LatencyExecute.L0)
+	latencyExecute.WithLabelValues(cluster, name, group, "25").Set(data.LatencyExecute.L25)
+	latencyExecute.WithLabelValues(cluster, name, group, "50").Set(data.LatencyExecute.L50)
+	latencyExecute.WithLabelValues(cluster, name, group, "75").Set(data.LatencyExecute.L75)
+	latencyExecute.WithLabelValues(cluster, name, group, "90").Set(data.LatencyExecute.L90)
+	latencyExecute.WithLabelValues(cluster, name, group, "95").Set(data.LatencyExecute.L95)
+	latencyExecute.WithLabelValues(cluster, name, group, "99").Set(data.LatencyExecute.L99)
+	latencyExecute.WithLabelValues(cluster, name, group, "99.5").Set(data.LatencyExecute.L995)
+	latencyExecute.WithLabelValues(cluster, name, group, "100").Set(data.LatencyExecute.L100)
+	latencyExecute.WithLabelValues(cluster, name, group, "mean").Set(data.LatencyExecuteMean)
 
-	circuitOpen.WithLabelValues(cluster, data.Name).Set(boolToFloat64(data.Open))
+	rollingCountCollapsedRequests.WithLabelValues(cluster, name, group).Set(data.RollingCountCollapsedRequests)
+	rollingCountShortCircuited.WithLabelValues(cluster, name, group).Set(data.RollingCountShortCircuited)
+	rollingCountThreadPoolRejected.WithLabelValues(cluster, name, group).Set(data.RollingCountThreadPoolRejected)
+	rollingCountFallbackEmit.WithLabelValues(cluster, name, group).Set(data.RollingCountFallbackEmit)
+	rollingCountSuccess.WithLabelValues(cluster, name, group).Set(data.RollingCountSuccess)
+	rollingCountTimeout.WithLabelValues(cluster, name, group).Set(data.RollingCountTimeout)
+	rollingCountFailure.WithLabelValues(cluster, name, group).Set(data.RollingCountFailure)
+	rollingCountExceptionsThrown.WithLabelValues(cluster, name, group).Set(data.RollingCountExceptionsThrown)
+
+	circuitOpen.WithLabelValues(cluster, name, group).Set(boolToFloat64(data.Open))
 }
 
 // ReportThreadPool reports metrics of a thread pool
 func ReportThreadPool(cluster string, data hystrix.Data) {
 	log.WithField("cluster", cluster).WithField("data", data).Debug("reporting")
 
-	threadPoolCurrentCorePoolSize.WithLabelValues(cluster, data.Name).Set(data.CurrentCorePoolSize)
-	threadPoolCurrentLargestPoolSize.WithLabelValues(cluster, data.Name).Set(data.CurrentLargestPoolSize)
-	threadPoolCurrentActiveCount.WithLabelValues(cluster, data.Name).Set(data.CurrentActiveCount)
-	threadPoolCurrentMaximumPoolSize.WithLabelValues(cluster, data.Name).Set(data.CurrentMaximumPoolSize)
-	threadPoolCurrentQueueSize.WithLabelValues(cluster, data.Name).Set(data.CurrentQueueSize)
-	threadPoolCurrentTaskCount.WithLabelValues(cluster, data.Name).Set(data.CurrentTaskCount)
-	threadPoolCurrentCompletedTaskCount.WithLabelValues(cluster, data.Name).Set(data.CurrentCompletedTaskCount)
-	threadPoolRollingMaxActiveThreads.WithLabelValues(cluster, data.Name).Set(data.RollingMaxActiveThreads)
-	threadPoolRollingCountCommandRejections.WithLabelValues(cluster, data.Name).Set(data.RollingCountCommandRejections)
-	threadPoolReportingHosts.WithLabelValues(cluster, data.Name).Set(data.ReportingHosts)
-	threadPoolCurrentPoolSize.WithLabelValues(cluster, data.Name).Set(data.CurrentPoolSize)
-	threadPoolRollingCountThreadsExecuted.WithLabelValues(cluster, data.Name).Set(data.RollingCountThreadsExecuted)
+	var name = strings.ToLower(data.Name)
+
+	threadPoolCurrentCorePoolSize.WithLabelValues(cluster, name).Set(data.CurrentCorePoolSize)
+	threadPoolCurrentLargestPoolSize.WithLabelValues(cluster, name).Set(data.CurrentLargestPoolSize)
+	threadPoolCurrentActiveCount.WithLabelValues(cluster, name).Set(data.CurrentActiveCount)
+	threadPoolCurrentMaximumPoolSize.WithLabelValues(cluster, name).Set(data.CurrentMaximumPoolSize)
+	threadPoolCurrentQueueSize.WithLabelValues(cluster, name).Set(data.CurrentQueueSize)
+	threadPoolCurrentTaskCount.WithLabelValues(cluster, name).Set(data.CurrentTaskCount)
+	threadPoolCurrentCompletedTaskCount.WithLabelValues(cluster, name).Set(data.CurrentCompletedTaskCount)
+	threadPoolRollingMaxActiveThreads.WithLabelValues(cluster, name).Set(data.RollingMaxActiveThreads)
+	threadPoolRollingCountCommandRejections.WithLabelValues(cluster, name).Set(data.RollingCountCommandRejections)
+	threadPoolReportingHosts.WithLabelValues(cluster, name).Set(data.ReportingHosts)
+	threadPoolCurrentPoolSize.WithLabelValues(cluster, name).Set(data.CurrentPoolSize)
+	threadPoolRollingCountThreadsExecuted.WithLabelValues(cluster, name).Set(data.RollingCountThreadsExecuted)
 }
 
 func boolToFloat64(b bool) float64 {
