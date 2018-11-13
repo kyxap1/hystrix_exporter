@@ -1,7 +1,7 @@
 project_name: hystrix_exporter
 release:
   github:
-    owner: ContaAzul
+    owner: mdavydau
     name: hystrix_exporter
 builds:
 - goos:
