@@ -15,7 +15,7 @@ archive:
   files:
   - config.yml
 dockers:
-- image: caninjas/hystrix_exporter
-  latest: true
+- image_templates:
+  - 'caninjas/hystrix_exporter:v0.0.3'
   extra_files:
-  - config.yml
+    - config.yml
