@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"html/template"
 	"net/http"
+	"net/http/pprof"
 	"os"
 	"strings"
 	"time"
@@ -31,6 +32,7 @@ var (
 	configFile = app.Flag("config", "config file").Short('c').Default("config.yml").ExistingFile()
 	listenAddr = app.Flag("listen-addr", "address to listen to").Default(":9444").String()
 	debug      = app.Flag("debug", "show debug logs").Default("false").Bool()
+	profile    = app.Flag("pprof", "enable profiler").Default("false").Bool()
 )
 
 var indexTmpl = `
@@ -72,6 +74,13 @@ func main() {
 	var mux = http.NewServeMux()
 	var index = template.Must(template.New("index").Parse(indexTmpl))
 	mux.Handle("/metrics", promhttp.Handler())
+	if *profile {
+		mux.HandleFunc("/debug/pprof/", pprof.Index)
+		mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+		mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
+		mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+		mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
+	}
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if err := index.Execute(w, &conf); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
