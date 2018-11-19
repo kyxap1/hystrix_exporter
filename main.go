@@ -68,7 +68,7 @@ func main() {
 
 	metrics.MustRegister(prometheus.DefaultRegisterer)
 	for _, cluster := range conf.Clusters {
-		go read(cluster.URL, cluster.Name)
+		go poll(cluster.URL, cluster.Name)
 	}
 
 	var mux = http.NewServeMux()
@@ -92,16 +92,29 @@ func main() {
 	}
 }
 
+func poll(url, cluster string) {
+	ticker := time.NewTicker(time.Second * 5)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			read(url, cluster)
+		}
+	}
+}
+
 func read(url, cluster string) {
 	var log = log.WithField("url", url).WithField("cluster", cluster)
 	log.Info("reading")
+
 	resp, err := http.Get(url)
 	if err != nil {
 		log.WithError(err).Warn("failed to read url")
-		time.Sleep(time.Second * 10)
-		read(url, cluster)
 		return
 	}
+	defer resp.Body.Close()
+
 	scanner := bufio.NewScanner(resp.Body)
 	for scanner.Scan() {
 		log.Debug("new line")
@@ -111,9 +124,11 @@ func read(url, cluster string) {
 		}
 		report(cluster, line)
 	}
+	if err = scanner.Err(); err != nil {
+		log.Errorf("scanner error: %v", err)
+	}
+
 	log.Warn("stream stop reporting")
-	time.Sleep(time.Second * 5)
-	read(url, cluster)
 }
 
 func report(cluster, line string) {
