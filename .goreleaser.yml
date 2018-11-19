@@ -1,7 +1,7 @@
 project_name: hystrix_exporter
 release:
   github:
-    owner: ContaAzul
+    owner: mdavydau
     name: hystrix_exporter
 builds:
 - goos:
@@ -15,7 +15,7 @@ archive:
   files:
   - config.yml
 dockers:
-- image: caninjas/hystrix_exporter
-  latest: true
+- image_templates:
+  - 'caninjas/hystrix_exporter:latest'
   extra_files:
-  - config.yml
+    - config.yml
